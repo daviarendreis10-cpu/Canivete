@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lista de Tarefas</title>
+    <script src="to-do.js" defer></script>
+    <script src="../shared/back.js" defer></script>
+    <script src="../shared/theme.js" defer></script>
+    <link rel="stylesheet" href="../shared/global.css" />
+    <link rel="stylesheet" href="to-do.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Lista de Tarefas</h1>
+      <p>
+        Esta é a sua lista de tarefas.<br />Digite sua nova tarefa e clique em
+        "Adicionar".
+      </p>
+      <main class="card">
+        <div class="to-do-input-row">
+          <input type="text" id="tarefa" placeholder="Digite sua tarefa aqui" />
+          <input type="time" id="hora" placeholder="Hora (opcional)" />
+          <button id="adicionar" class="btn btn-success">Adicionar</button>
+        </div>
+        <ul id="lista"></ul>
+      </main>
+
+      <p><span id="contador">Total de tarefas: 0</span></p>
+      <div id="botoes" class="btn-group btn-group-center">
+        <button id="concluidas" class="btn btn-secondary">Concluídas</button>
+        <button id="pendentes" class="btn btn-secondary">Pendentes</button>
+        <button id="todas" class="btn btn-secondary">Todas</button>
+      </div>
+      <button id="limpar" class="btn btn-danger btn-center">Limpar Lista</button>
+    </div>
+  </body>
+</html>
