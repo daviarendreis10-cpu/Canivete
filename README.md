@@ -32,6 +32,7 @@ O Canivete resolve isso: um único endereço, publicado, com atalho na área de 
 
 ## 📁 Estrutura
 
+````
 /
 ├── index.html/js/css menu
 ├── shared/ recursos compartilhados
@@ -40,7 +41,7 @@ O Canivete resolve isso: um único endereço, publicado, com atalho na área de 
 ├── Tracker/
 ├── To-do/
 └── Financas/
-
+````
 
 ## 🚀 Como rodar
 
