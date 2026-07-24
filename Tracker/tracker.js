@@ -1,12 +1,14 @@
 const habitsList = document.getElementById('habits-list');
 const createHabitBtn = document.getElementById('create-habit-btn');
 
+import Habit from './Habit.js';
+
 const STORAGE_KEY = 'tracker: habits'; 
 
 function loadHabits() {
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
-    return parsed.map((habit) => ({ ...habit, completedDates: habit.completedDates || [] }));
+    return parsed.map((habit) => Habit.fromJSON(habit));
 }
 
 function saveHabits() {
@@ -28,6 +30,7 @@ function renderForm() {
     nameInput.type = 'text';
     nameInput.placeholder = 'Enter habit name';
     nameInput.id = 'habit-name-input';
+    nameInput.maxLength = 40;
 
     const colorInput = document.createElement('input');
     colorInput.type = 'color';
@@ -45,17 +48,13 @@ function renderForm() {
             return;
         }
 
-        habits.push({
-            id: crypto.randomUUID(),
-            name,
-            color: colorInput.value,
-            completedDates: []
-        });
+        const newHabit = new Habit(name, colorInput.value);
+        habits.push(newHabit);
 
         saveHabits();  
         formItem.remove(); 
         createHabitBtn.disabled = false;
-        renderHabitCard(habits[habits.length - 1]); 
+        appendHabitCard(newHabit); 
     });
 
     formItem.appendChild(nameInput);
@@ -65,82 +64,21 @@ function renderForm() {
     nameInput.focus(); 
 }
 
-function renderHabitCard(habit) {
-    const card = document.createElement('li');
-    card.className = 'habit-card';
-    card.dataset.habitId = habit.id; 
-    card.style.setProperty('--habit-color', habit.color); 
+habitsList.addEventListener('habitUpdated', () => {
+    saveHabits();
+});
 
-    const name = document.createElement('h3');
-    name.className = 'habit-name';
-    name.textContent = habit.name;
+habitsList.addEventListener('habitDeleted', (event) => {
+    habits = habits.filter((h) => h.id !== event.detail.habitId);
+    saveHabits();
+});
 
-    const details = document.createElement('div');
-    details.className = 'habit-details'; 
 
-    const streakCount = document.createElement('span');
-    streakCount.className = 'habit-streak';
-
-    streakCount.textContent = calculateStreak(habit.completedDates);
-
-    const markBtn = document.createElement('button');
-    markBtn.className = 'habit-mark-btn';
-    markBtn.textContent = 'Concluir hoje';
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'habit-delete-btn';
-    deleteBtn.textContent = 'Excluir';
-
-    markBtn.addEventListener('click', () => {
-        if (verifyTodayCompletion(habit)) {
-            alert('Você já concluiu este hábito hoje!');
-            return;
-        }
-
-        habit.completedDates.push(dayjs().format('YYYY-MM-DD'));
-        saveHabits();
-        streakCount.textContent = calculateStreak(habit.completedDates);
-    });
-
-    deleteBtn.addEventListener('click', () => {
-        if (confirm('Tem certeza que deseja excluir este hábito?')) {
-            habits = habits.filter((h) => h.id !== habit.id);
-            saveHabits();
-            card.remove();
-        }
-    });
-
-    details.appendChild(streakCount);
-    details.appendChild(markBtn);
-    details.appendChild(deleteBtn);
-
-    card.appendChild(name);
-    card.appendChild(details);
+function appendHabitCard(habit) {
+    const card = habit.render();
     habitsList.appendChild(card);
 }
 
-function verifyTodayCompletion(habit) {
-    const today = dayjs().format('YYYY-MM-DD');
-    return habit.completedDates.includes(today);
-}
-
-function calculateStreak(completedDates) {
-    const datesSet = new Set(completedDates);
-    let cursor = dayjs();
-
-    if (!datesSet.has(cursor.format('YYYY-MM-DD'))) {
-        cursor = cursor.subtract(1, 'day');
-        if (!datesSet.has(cursor.format('YYYY-MM-DD'))) {
-            return 0;
-        }
-    }
-
-    let streak = 0;
-    while (datesSet.has(cursor.format('YYYY-MM-DD'))) {
-        streak += 1;
-        cursor = cursor.subtract(1, 'day');
-    }
-    return streak;
-}
-
-habits.forEach(renderHabitCard);
+habits.forEach((habit) => {
+    appendHabitCard(habit);
+});
