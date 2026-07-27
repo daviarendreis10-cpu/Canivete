@@ -48,45 +48,93 @@
 }
 
 .habit-card {
-  padding: var(--space-4);
+  min-height: 150px;
+  padding: var(--space-5) var(--space-6);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-left: 6px solid var(--habit-color, var(--color-accent));
+  transition: background 0.15s ease;
+}
+
+.habit-card.is-editing {
+  background: var(--color-surface-alt);
+}
+
+.habit-main {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: 100px;
+}
+
+.habit-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
 }
 
 .habit-name {
-  margin: 0 0 var(--space-2);
-  font-size: var(--font-size-lg);
+  margin: 0;
+  font-size: var(--font-size-xl);
 }
 
-.habit-details {
+.habit-input-edit {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  max-width: 100%;
+}
+
+.habit-actions {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.habit-streak-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease;
+}
+
+.habit-card.is-editing .habit-streak-wrap {
+  opacity: 0.35;
 }
 
 .habit-streak {
-  font-weight: 700;
+  font-size: clamp(2.5rem, 6vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1;
   color: var(--habit-color, var(--color-accent));
 }
 
 .habit-mark-btn,
-.habit-delete-btn {
+.habit-delete-btn,
+.habit-edit-btn,
+.save-edit-btn,
+.cancel-edit-btn {
   padding: var(--space-2) var(--space-3);
-  border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
-.habit-mark-btn {
+.habit-mark-btn,
+.save-edit-btn {
+  border: none;
   background: var(--habit-color, var(--color-accent));
   color: #ffffff;
 }
 
-.habit-delete-btn {
+.habit-delete-btn,
+.habit-edit-btn,
+.cancel-edit-btn {
   background: transparent;
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);

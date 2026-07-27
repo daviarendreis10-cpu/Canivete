@@ -24,19 +24,27 @@ export default class Habit {
     render() {
         const card = document.createElement('li');
         card.className = 'habit-card';
-        card.dataset.habitId = this.id; 
-        card.style.setProperty('--habit-color', this.color); 
+        card.dataset.habitId = this.id;
+        card.style.setProperty('--habit-color', this.color);
+
+        const main = document.createElement('div');
+        main.className = 'habit-main';
+
+        const left = document.createElement('div');
+        left.className = 'habit-left';
 
         const name = document.createElement('h3');
         name.className = 'habit-name';
         name.textContent = this.name;
 
-        const details = document.createElement('div');
-        details.className = 'habit-details';
+        const actions = document.createElement('div');
+        actions.className = 'habit-actions';
+
+        const streakWrap = document.createElement('div');
+        streakWrap.className = 'habit-streak-wrap';
 
         const streak = document.createElement('span');
         streak.className = 'habit-streak';
-
         streak.textContent = this.#calculateStreak(this.completedDates);
 
         const markBtn = document.createElement('button');
@@ -47,6 +55,9 @@ export default class Habit {
         deleteBtn.className = 'habit-delete-btn';
         deleteBtn.textContent = 'Excluir';
 
+        const editBtn = document.createElement('button')
+        editBtn.className = 'habit-edit-btn'
+        editBtn.textContent = '✎'
 
         markBtn.addEventListener('click', () => {
             if (this.#isCompletedToday()) {
@@ -66,13 +77,65 @@ export default class Habit {
             }
         });
 
-        details.appendChild(streak);
-        details.appendChild(markBtn);
-        details.appendChild(deleteBtn);
+        editBtn.addEventListener('click', () => {
+            this.#editHabit({ card, name, actions, markBtn, deleteBtn, editBtn });
+        });
 
-        card.appendChild(name);
-        card.appendChild(details);
+        actions.appendChild(markBtn);
+        actions.appendChild(deleteBtn);
+        actions.appendChild(editBtn);
+
+        left.appendChild(name);
+        left.appendChild(actions);
+
+        streakWrap.appendChild(streak);
+
+        main.appendChild(left);
+        main.appendChild(streakWrap);
+        card.appendChild(main);
         return card;
+    }
+
+    #editHabit({ card, name, actions, markBtn, deleteBtn, editBtn }) {
+        card.classList.add('is-editing');
+
+        const input = document.createElement('input')
+        input.className = 'habit-input-edit'
+        input.type = 'text'
+        input.value = this.name
+
+        const saveBtn = document.createElement('button')
+        saveBtn.className = 'save-edit-btn'
+        saveBtn.textContent = 'Save'
+
+        const cancelBtn = document.createElement('button')
+        cancelBtn.className = 'cancel-edit-btn'
+        cancelBtn.textContent = 'Cancel'
+
+        const exitEditMode = () => {
+            input.replaceWith(name);
+            actions.replaceChildren(markBtn, deleteBtn, editBtn);
+            card.classList.remove('is-editing');
+        };
+
+        saveBtn.addEventListener('click', () => {
+            const newName = input.value.trim();
+            if (newName) {
+                this.name = newName;
+                name.textContent = this.name;
+            }
+            exitEditMode();
+            card.dispatchEvent(new CustomEvent('habitUpdated', { bubbles: true }));
+        })
+
+        cancelBtn.addEventListener('click', () => {
+            exitEditMode();
+        })
+
+        name.replaceWith(input);
+        actions.replaceChildren(saveBtn, cancelBtn);
+        input.focus();
+        input.select();
     }
 
     #calculateStreak(completedDates) {
