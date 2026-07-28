@@ -67,8 +67,10 @@ function criarLi() {
   }
 
   const concluir = criarBotaoConcluida(li);
+  const editar = criarBotaoEditar(li);
 
   const remover = document.createElement("button");
+  remover.className = "btn-remover";
   remover.textContent = "❌";
   remover.addEventListener("click", () => {
     li.remove();
@@ -78,6 +80,7 @@ function criarLi() {
 
   li.appendChild(span);
   li.appendChild(concluir);
+  li.appendChild(editar);
   li.appendChild(remover);
 
   return li;
@@ -99,8 +102,78 @@ function atualizarContador() {
   contador.textContent = `Tarefas pendentes: ${pendentesCount} | Concluídas: ${concluidasCount}`;
 }
 
+function criarBotaoEditar(li) {
+  const editar = document.createElement("button");
+  editar.className = "btn-editar";
+  editar.textContent = "✎";
+
+  editar.addEventListener("click", () => {
+    const span = li.querySelector("span");
+    const concluir = li.querySelector(".btn-concluir");
+    const remover = li.querySelector(".btn-remover");
+    const textoAtual = span.textContent.replace("✅ ", "");
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "editar-input";
+    input.value = textoAtual;
+
+    const salvar = document.createElement("button");
+    salvar.className = "btn-salvar-edicao";
+    salvar.textContent = "💾";
+
+    const cancelar = document.createElement("button");
+    cancelar.className = "btn-cancelar-edicao";
+    cancelar.textContent = "✖";
+
+    function sairModoEdicao() {
+      input.remove();
+      salvar.remove();
+      cancelar.remove();
+      span.style.display = "";
+      editar.style.display = "";
+      if (concluir) concluir.style.display = "";
+      if (remover) remover.style.display = "";
+    }
+
+    salvar.addEventListener("click", () => {
+      const novoTexto = input.value.trim();
+      if (novoTexto === "") return;
+
+      span.textContent = li.classList.contains("concluida")
+        ? `✅ ${novoTexto}`
+        : novoTexto;
+
+      sairModoEdicao();
+      salvarTarefas();
+    });
+
+    cancelar.addEventListener("click", () => {
+      sairModoEdicao();
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") salvar.click();
+      if (e.key === "Escape") cancelar.click();
+    });
+
+    span.style.display = "none";
+    editar.style.display = "none";
+    if (concluir) concluir.style.display = "none";
+    if (remover) remover.style.display = "none";
+
+    li.insertBefore(input, span);
+    li.appendChild(salvar);
+    li.appendChild(cancelar);
+    input.focus();
+  });
+
+  return editar;
+}
+
 function criarBotaoConcluida(li) {
   const concluir = document.createElement("button");
+  concluir.className = "btn-concluir";
   concluir.textContent = "⏳";
 
   concluir.addEventListener("click", () => {
@@ -199,8 +272,10 @@ function carregarTarefas() {
     }
 
     const concluir = criarBotaoConcluida(li);
+    const editar = criarBotaoEditar(li);
 
     const remover = document.createElement("button");
+    remover.className = "btn-remover";
     remover.textContent = "❌";
     remover.addEventListener("click", () => {
       li.remove();
@@ -212,6 +287,7 @@ function carregarTarefas() {
     if (!tarefas[i].concluida) {
       li.appendChild(concluir);
     }
+    li.appendChild(editar);
     li.appendChild(remover);
 
     lista.appendChild(li);
