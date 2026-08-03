@@ -114,6 +114,7 @@
 }
 
 .habit-mark-btn,
+.habit-uncheck-btn,
 .habit-delete-btn,
 .habit-edit-btn,
 .save-edit-btn,
@@ -123,6 +124,7 @@
   cursor: pointer;
   font-size: var(--font-size-sm);
   font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
 }
 
 .habit-mark-btn,
@@ -130,6 +132,21 @@
   border: none;
   background: var(--habit-color, var(--color-accent));
   color: #ffffff;
+}
+
+.habit-uncheck-btn {
+  border: 1px solid var(--habit-color, var(--color-accent));
+  background: transparent;
+  color: var(--habit-color, var(--color-accent));
+}
+
+.habit-uncheck-btn:hover {
+  background: var(--habit-color, var(--color-accent));
+  color: #ffffff;
+}
+
+.habit-uncheck-btn:active {
+  opacity: 0.85;
 }
 
 .habit-delete-btn,

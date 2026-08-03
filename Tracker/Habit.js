@@ -21,6 +21,13 @@ export default class Habit {
         }
     }
 
+    uncheckCompleted(date) {
+        if (this.completedDates.includes(date)) {
+            this.completedDates = this.completedDates.filter(d => d !== date);
+        }
+        this.#calculateStreak(this.completedDates);
+    }
+
     render() {
         const card = document.createElement('li');
         card.className = 'habit-card';
@@ -51,6 +58,10 @@ export default class Habit {
         markBtn.className = 'habit-mark-btn';
         markBtn.textContent = 'Concluir hoje';
 
+        const uncheckBtn = document.createElement('button');
+        uncheckBtn.className = 'habit-uncheck-btn';
+        uncheckBtn.textContent = 'Desmarcar hoje';
+
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'habit-delete-btn';
         deleteBtn.textContent = 'Excluir';
@@ -70,6 +81,16 @@ export default class Habit {
             card.dispatchEvent(new CustomEvent('habitUpdated', { bubbles: true }));
         });
 
+        uncheckBtn.addEventListener('click', () => {
+            if (!this.#isCompletedToday()) {
+                alert('Você ainda não concluiu este hábito hoje!');
+                return;
+            }
+            this.uncheckCompleted(dayjs().format('YYYY-MM-DD'));
+            streak.textContent = this.#calculateStreak(this.completedDates);
+            card.dispatchEvent(new CustomEvent('habitUpdated', { bubbles: true }));
+        });
+
         deleteBtn.addEventListener('click', () => {
             if (confirm('Tem certeza que deseja excluir este hábito?')) {
                 card.dispatchEvent(new CustomEvent('habitDeleted', { bubbles: true, detail: { habitId: this.id } }));
@@ -78,10 +99,11 @@ export default class Habit {
         });
 
         editBtn.addEventListener('click', () => {
-            this.#editHabit({ card, name, actions, markBtn, deleteBtn, editBtn });
+            this.#editHabit({ card, name, actions, markBtn, uncheckBtn, deleteBtn, editBtn });
         });
 
         actions.appendChild(markBtn);
+        actions.appendChild(uncheckBtn);
         actions.appendChild(deleteBtn);
         actions.appendChild(editBtn);
 
@@ -96,7 +118,7 @@ export default class Habit {
         return card;
     }
 
-    #editHabit({ card, name, actions, markBtn, deleteBtn, editBtn }) {
+    #editHabit({ card, name, actions, markBtn, uncheckBtn, deleteBtn, editBtn }) {
         card.classList.add('is-editing');
 
         const input = document.createElement('input')
@@ -114,7 +136,7 @@ export default class Habit {
 
         const exitEditMode = () => {
             input.replaceWith(name);
-            actions.replaceChildren(markBtn, deleteBtn, editBtn);
+            actions.replaceChildren(markBtn, uncheckBtn, deleteBtn, editBtn);
             card.classList.remove('is-editing');
         };
 
