@@ -4,11 +4,13 @@ export default class Task {
     this.texto = texto;
     this.hora = hora;
     this.concluida = concluida;
+    this.prioridade = false;
   }
 
   static fromJSON(obj) {
     const tarefa = new Task(obj.texto, obj.hora, obj.concluida);
     tarefa.id = obj.id;
+    tarefa.prioridade = obj.prioridade;
     return tarefa;
   }
 
@@ -40,6 +42,15 @@ export default class Task {
     remover.className = "btn-remover";
     remover.textContent = "❌";
 
+    const priority = document.createElement("button");
+    priority.className = "btn-prioridade";
+    if (this.prioridade) {
+      priority.textContent = "⭐";
+      li.classList.add("prioridade");
+    } else {
+      priority.textContent = "☆";
+    }
+
     concluir.addEventListener("click", () => {
       this.concluida = true;
       li.classList.add("concluida");
@@ -56,19 +67,32 @@ export default class Task {
     });
 
     editar.addEventListener("click", () => {
-      this.#editar({ li, span, acoes, concluir, editar, remover });
+      this.#editar({ li, span, acoes, concluir, editar, remover, priority });
+    });
+
+    priority.addEventListener("click", () => {
+      this.#priority();
+      li.dispatchEvent(new CustomEvent("tarefaAtualizada", { bubbles: true }));
     });
 
     acoes.appendChild(concluir);
     acoes.appendChild(editar);
     acoes.appendChild(remover);
-
+    acoes.appendChild(priority);
     li.appendChild(span);
     li.appendChild(acoes);
     return li;
   }
 
-  #editar({ li, span, acoes, concluir, editar, remover }) {
+  #priority() {
+    if (this.prioridade) {
+      this.prioridade = false;
+    } else {
+      this.prioridade = true;
+    }
+  }
+
+  #editar({ li, span, acoes, concluir, editar, remover, priority }) {
     const input = document.createElement("input");
     input.type = "text";
     input.className = "editar-input";
@@ -84,7 +108,7 @@ export default class Task {
 
     const sairModoEdicao = () => {
       input.replaceWith(span);
-      const botoes = this.concluida ? [editar, remover] : [concluir, editar, remover];
+      const botoes = this.concluida ? [editar, remover, priority] : [concluir, editar, remover, priority];
       acoes.replaceChildren(...botoes);
     };
 

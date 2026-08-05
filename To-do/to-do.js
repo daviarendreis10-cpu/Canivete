@@ -43,13 +43,13 @@ function adicionarTarefa() {
 
   const novaTarefa = new Task(texto, horaInput.value);
   tarefas.push(novaTarefa);
+  ordenarERenderizar();
   saveTarefas();
 
   tarefaInput.value = "";
   horaInput.value = "";
   adicionar.disabled = true;
 
-  appendTarefa(novaTarefa);
   atualizarContador();
 }
 
@@ -65,26 +65,33 @@ function correspondeAoFiltro(tarefa) {
   return true;
 }
 
-function aplicarFiltro() {
-  [...lista.children].forEach((li) => {
-    const tarefa = tarefas.find((t) => t.id === li.dataset.tarefaId);
-    li.style.display = tarefa && correspondeAoFiltro(tarefa) ? "" : "none";
-  });
+function ordenarTarefas() {
+  tarefas.sort((a, b) =>
+    a.prioridade === b.prioridade
+      ? new Date(`1970-01-01T${a.hora || "00:00"}`) - new Date(`1970-01-01T${b.hora || "00:00"}`)
+      : b.prioridade - a.prioridade
+  );
+}
+
+function ordenarERenderizar() {
+  ordenarTarefas();
+  lista.innerHTML = "";
+  tarefas.forEach(appendTarefa);
 }
 
 todasBtn.addEventListener("click", () => {
   filtroAtual = "todas";
-  aplicarFiltro();
+  ordenarERenderizar();
 });
 
 concluidasBtn.addEventListener("click", () => {
   filtroAtual = "concluidas";
-  aplicarFiltro();
+  ordenarERenderizar();
 });
 
 pendentesBtn.addEventListener("click", () => {
   filtroAtual = "pendentes";
-  aplicarFiltro();
+  ordenarERenderizar();
 });
 
 limpar.addEventListener("click", () => {
@@ -95,13 +102,14 @@ limpar.addEventListener("click", () => {
 });
 
 lista.addEventListener("tarefaAtualizada", () => {
+  ordenarERenderizar();
   saveTarefas();
   atualizarContador();
-  aplicarFiltro();
 });
 
 lista.addEventListener("tarefaRemovida", (e) => {
   tarefas = tarefas.filter((t) => t.id !== e.detail.tarefaId);
+  ordenarERenderizar();
   saveTarefas();
   atualizarContador();
 });
@@ -112,5 +120,5 @@ function atualizarContador() {
   contador.textContent = `Tarefas pendentes: ${pendentesCount} | Concluídas: ${concluidasCount}`;
 }
 
-tarefas.forEach(appendTarefa);
+ordenarERenderizar();
 atualizarContador();
