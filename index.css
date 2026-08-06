@@ -13,6 +13,42 @@ body {
   padding: var(--space-8) var(--space-4);
 }
 
+.date-api-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+}
+
+#API {
+  max-width: 260px;
+  padding: var(--space-4) var(--space-5);
+  border-left: 3px solid var(--color-border);
+  background: var(--color-surface-alt);
+  text-align: left;
+}
+
+#API p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-style: italic;
+  color: var(--color-text-muted);
+  position: relative;
+  padding-left: var(--space-4);
+}
+
+#API p::before {
+  content: '\201C';
+  position: absolute;
+  left: -0.1em;
+  top: -0.15em;
+  font-size: var(--font-size-xl);
+  font-style: normal;
+  color: var(--color-border);
+  line-height: 1;
+}
+
 #list {
   width: 100%;
   display: flex;

@@ -1,4 +1,5 @@
 const list = document.getElementById('list');
+const divAPI = document.getElementById('API');
 const apps = [
   {
     name: 'To-do List',
@@ -106,4 +107,19 @@ function updateDate() {
     const weekdayLower = WEEKDAYS_PT[weekday];
     dateEl.textContent = `${weekdayLower.charAt(0).toUpperCase() + weekdayLower.slice(1)}, ${now.format('DD/MM/YYYY')}`;
 }
+
+async function updateAPI() {
+  const response = await fetch("https://api.adviceslip.com/advice");
+  const phrase = await response.json();
+  const advice = phrase.slip.advice;
+
+  const translateResponse = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(advice)}&langpair=en|pt`);
+  const translateData = await translateResponse.json();
+  const message = translateData.responseData.translatedText;
+
+  const p = document.createElement('p');
+  p.textContent = `"${message}"`;
+  divAPI.appendChild(p);
+}
 updateDate();
+updateAPI();
