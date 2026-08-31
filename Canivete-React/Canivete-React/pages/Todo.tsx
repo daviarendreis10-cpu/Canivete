@@ -1,5 +1,6 @@
 import { Badge, Box, Button, Card, Dialog, DropdownMenu, Flex, Heading, RadioGroup, Strong, Text, TextField } from "@radix-ui/themes";
 import { DotsVerticalIcon } from '@radix-ui/react-icons'
+import { FormEventHandler, useState } from "react";
 
 
 type priority = 'low' | 'medium' |'high'
@@ -8,24 +9,39 @@ interface Tarefa {
     id: number
     name: string
     description: string
-    horario: string
+    time: string
     priority: priority
 }
 
 export default function Todo () {
-    const tarefas: Tarefa[] = [{
-        id: 1,
-        name: 'Estudar',
-        description: 'Aprender melhor NodeJS',
-        horario: '14:00',
-        priority:'high'
-    }, {
-        id: 2,
-        name: 'Ler',
-        description: 'Ler um capitulo de Programador Pragmatico',
-        horario: '19:30',
-        priority:'low'
-    }]
+    const [todos, setTodos] = useState<Tarefa[]>([])
+
+    const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
+        e.preventDefault()
+
+        const formData = new FormData(e.currentTarget)
+
+        const name = formData.get("name")?.toString() || "To-do"
+        const time = formData.get("time")?.toString() || "12:00"
+        const description = formData.get("description")?.toString() || "Realizar essa tarefa"
+        const priorityRaw = formData.get("priority")?.toString()
+        const priority = (priorityRaw === 'low' ||
+                         priorityRaw === 'medium' ||
+                         priorityRaw === 'high') ? priorityRaw as priority : 'low'
+
+        e.currentTarget.reset()
+
+        const newTodo: Tarefa = {
+            id: Math.round(Math.random() * 100000),
+            name: name,
+            time: time,
+            description: description,
+            priority: priority
+        }
+
+        setTodos((state) => [...state, newTodo])
+        
+    }
 
     return(
         <Box>
@@ -37,27 +53,38 @@ export default function Todo () {
                     <Dialog.Trigger>
                         <Button color="green" variant="surface">Adicionar Tarefa</Button>
                     </Dialog.Trigger>
-                    <form action="">
+                    
                     <Dialog.Content maxWidth={'20rem'}>
                         <Dialog.Title>Adicionar Tarefa</Dialog.Title>
-
+                        
+                        <form onSubmit={handleSubmit}>
                         <Flex direction={'column'} gap={'4'}>
-                            <label>
+                            <label htmlFor="name">
                                 <Text as="div" size={'2'} m={'1'} weight={'bold'}>Tarefa</Text>
                                 <TextField.Root
                                 placeholder="Enter your to-do"
+                                name="name" id="name"
                                 required/>
                             </label>
 
-                            <label>
+                            <label htmlFor="time">
                                 <Text as="div" size={'2'} m={'1'} weight={'bold'}>Horario</Text>
                                 <TextField.Root 
                                 type="time"
+                                name="time" id="time"
                                 placeholder="--:--"
                                 />
                             </label>
 
-                            <label>
+                            <label htmlFor="description">
+                                <Text as="div" size={'2'} m={'1'} weight={'bold'}>Tarefa</Text>
+                                <TextField.Root
+                                placeholder="Enter your description"
+                                name="description" id="description"
+                                required/>
+                            </label>
+
+                            <label htmlFor="priority">
                                 <Text as="div" size={'2'} m={'1'} weight={'bold'}>Prioridade</Text>
                                 <RadioGroup.Root defaultValue="low" name="priority" variant="soft" color="gray">
 
@@ -82,15 +109,12 @@ export default function Todo () {
 
                         <Flex gap="3" mt="4" justify="end">
                             <Dialog.Close>
-                                <Button variant="soft" color="gray">
-                                    Cancelar
-                                </Button>
+                                <Button variant="soft" color="gray">Cancelar</Button>
                             </Dialog.Close>
-                            
                             <Button type="submit">Adicionar Tarefa</Button>
                         </Flex>
+                        </form>
                     </Dialog.Content>
-                    </form>
                 </Dialog.Root>
 
                 <Box width={'25rem'} >
@@ -100,14 +124,14 @@ export default function Todo () {
                             Tarefas
                         </Heading>
 
-                    {tarefas.map((tarefa) => (
-                        <Card variant="classic" m={'2'} >
+                    {todos.map((todo) => (
+                        <Card variant="classic" m={'2'} key={todo.id} >
                             <Flex direction={'column'} gap={'3'} maxHeight={'100%'}>
-                                <Heading as="h3">{tarefa.name} - <Badge
-                                    color={tarefa.priority === 'high' ? 'tomato' : 'sky'}
-                                    variant="soft">{tarefa.priority}</Badge></Heading>
-                                <Text>{tarefa.description}</Text>
-                                <Text><Strong>{tarefa.horario}</Strong></Text>
+                                <Heading as="h3">{todo.name} - <Badge
+                                    color={todo.priority === 'high' ? 'tomato' : 'sky'}
+                                    variant="soft">{todo.priority}</Badge></Heading>
+                                <Text>{todo.description}</Text>
+                                <Text><Strong>{todo.time}</Strong></Text>
                             </Flex>
                             <Flex maxWidth={'3rem'} mt={'2'} >
                                 <DropdownMenu.Root >
