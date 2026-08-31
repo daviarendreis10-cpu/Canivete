@@ -43,6 +43,11 @@ export default function Todo () {
         
     }
 
+    const removeTodo = (id:number) => {
+        const todosFiltred = todos.filter((t) => t.id !== id)
+        setTodos(todosFiltred)
+    }
+
     return(
         <Box>
             <Flex align={'center'} direction={'column'} gap={'4'}>
@@ -145,7 +150,7 @@ export default function Todo () {
 
                                     <DropdownMenu.Content>
                                         <DropdownMenu.Item shortcut="🖉">Edit</DropdownMenu.Item>
-                                        <DropdownMenu.Item shortcut="⌫" color="red">Delete</DropdownMenu.Item>
+                                        <DropdownMenu.Item shortcut="⌫" color="red" onClick={() => removeTodo(todo.id)}>Delete</DropdownMenu.Item>
                                     </DropdownMenu.Content>
                                 </DropdownMenu.Root>
                             </Flex>
