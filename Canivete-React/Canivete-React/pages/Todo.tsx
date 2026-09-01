@@ -15,6 +15,7 @@ interface Tarefa {
 
 export default function Todo () {
     const [todos, setTodos] = useState<Tarefa[]>([])
+    const [editingTodoId, setEditingTodoId] = useState<number | null>(null)
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault()
@@ -46,6 +47,22 @@ export default function Todo () {
     const removeTodo = (id:number) => {
         const todosFiltred = todos.filter((t) => t.id !== id)
         setTodos(todosFiltred)
+    }
+
+    const handleEditSubmit = (id:number): FormEventHandler<HTMLFormElement> => (e) => {
+        e.preventDefault()
+
+        const formData = new FormData(e.currentTarget)
+        const name = formData.get("name")?.toString() || "To-do"
+        const time = formData.get("time")?.toString() || "12:00"
+        const description = formData.get("description")?.toString() || "Realizar essa tarefa"
+        const priorityRaw = formData.get("priority")?.toString()
+        const priority = (priorityRaw === 'low' ||
+                         priorityRaw === 'medium' ||
+                         priorityRaw === 'high') ? priorityRaw as priority : 'low'
+
+        setTodos((state) => state.map((todo) => todo.id === id ? { ...todo, name, time, description, priority } : todo))
+        setEditingTodoId(null)
     }
 
     return(
@@ -138,7 +155,75 @@ export default function Todo () {
                                 <Text>{todo.description}</Text>
                                 <Text><Strong>{todo.time}</Strong></Text>
                             </Flex>
-                            <Flex maxWidth={'3rem'} mt={'2'} >
+                            <Flex justify={'end'} mt={'2'} gap={'2'}>
+                                <Dialog.Root
+                                    open={editingTodoId === todo.id}
+                                    onOpenChange={(open) => {
+                                        if (!open) {
+                                            setEditingTodoId(null)
+                                        }
+                                    }}
+                                >
+                                    <Dialog.Trigger>
+                                        <Button variant="soft" color="gray" onClick={() => setEditingTodoId(todo.id)}>
+                                            Edit
+                                        </Button>
+                                    </Dialog.Trigger>
+
+                                    <Dialog.Content maxWidth={'20rem'}>
+                                        <Dialog.Title>Editando a Tarefa: {todo.name}</Dialog.Title>
+
+                                        <form onSubmit={handleEditSubmit(todo.id)}>
+                                            <Flex direction={'column'} gap={'4'}>
+                                                <label htmlFor={`edit-name-${todo.id}`}>
+                                                    <Text as="div" size={'2'} m={'1'} weight={'bold'}>Tarefa</Text>
+                                                    <TextField.Root
+                                                        placeholder="Enter your to-do"
+                                                        name="name" id={`edit-name-${todo.id}`}
+                                                        defaultValue={todo.name}
+                                                        required
+                                                    />
+                                                </label>
+
+                                                <label htmlFor={`edit-time-${todo.id}`}>
+                                                    <Text as="div" size={'2'} m={'1'} weight={'bold'}>Horario</Text>
+                                                    <TextField.Root
+                                                        type="time"
+                                                        name="time" id={`edit-time-${todo.id}`}
+                                                        defaultValue={todo.time}
+                                                    />
+                                                </label>
+
+                                                <label htmlFor={`edit-description-${todo.id}`}>
+                                                    <Text as="div" size={'2'} m={'1'} weight={'bold'}>Descrição</Text>
+                                                    <TextField.Root
+                                                        placeholder="Enter your description"
+                                                        name="description" id={`edit-description-${todo.id}`}
+                                                        defaultValue={todo.description}
+                                                        required
+                                                    />
+                                                </label>
+
+                                                <label htmlFor={`edit-priority-${todo.id}`}>
+                                                    <Text as="div" size={'2'} m={'1'} weight={'bold'}>Prioridade</Text>
+                                                    <RadioGroup.Root defaultValue={todo.priority} name="priority" variant="soft" color="gray">
+                                                        <RadioGroup.Item value="low">Baixa</RadioGroup.Item>
+                                                        <RadioGroup.Item value="medium">Media</RadioGroup.Item>
+                                                        <RadioGroup.Item value="high">Alta</RadioGroup.Item>
+                                                    </RadioGroup.Root>
+                                                </label>
+                                            </Flex>
+
+                                            <Flex gap="3" mt="4" justify="end">
+                                                <Dialog.Close>
+                                                    <Button variant="soft" color="gray" onClick={() => setEditingTodoId(null)}>Cancelar</Button>
+                                                </Dialog.Close>
+                                                <Button type="submit">Salvar Tarefa</Button>
+                                            </Flex>
+                                        </form>
+                                    </Dialog.Content>
+                                </Dialog.Root>
+
                                 <DropdownMenu.Root >
                                     <Flex justify={'end'}>
                                         <DropdownMenu.Trigger>
@@ -149,16 +234,15 @@ export default function Todo () {
                                     </Flex>
 
                                     <DropdownMenu.Content>
-                                        <DropdownMenu.Item shortcut="🖉">Edit</DropdownMenu.Item>
                                         <DropdownMenu.Item shortcut="⌫" color="red" onClick={() => removeTodo(todo.id)}>Delete</DropdownMenu.Item>
                                     </DropdownMenu.Content>
                                 </DropdownMenu.Root>
                             </Flex>
-                            
                         </Card>
                     ))}
                     </Flex>
                 </Box>
+                <Heading as="h3" size={'4'}>Total de tarefas: {todos.length}</Heading>
             </Flex>
         </Box>
     )
