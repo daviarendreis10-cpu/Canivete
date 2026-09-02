@@ -1,6 +1,6 @@
 import { Badge, Box, Button, Card, Dialog, DropdownMenu, Flex, Heading, RadioGroup, Strong, Text, TextField } from "@radix-ui/themes";
 import { DotsVerticalIcon } from '@radix-ui/react-icons'
-import { FormEventHandler, useState } from "react";
+import { FormEventHandler, useEffect, useState } from "react";
 
 
 type priority = 'low' | 'medium' |'high'
@@ -14,8 +14,24 @@ interface Tarefa {
 }
 
 export default function Todo () {
-    const [todos, setTodos] = useState<Tarefa[]>([])
+
+    function getLocalStorage () {
+        const raw = localStorage.getItem('todos')
+
+        if (!raw) return []
+
+        const data = JSON.parse(raw) as Tarefa[]
+        return data
+    }
+
+    const [todos, setTodos] = useState<Tarefa[]>(() => getLocalStorage())
     const [editingTodoId, setEditingTodoId] = useState<number | null>(null)
+
+    useEffect(() => {
+        localStorage.setItem('todos', JSON.stringify(todos))
+    }, [todos])
+
+    
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault()
@@ -47,6 +63,7 @@ export default function Todo () {
     const removeTodo = (id:number) => {
         const todosFiltred = todos.filter((t) => t.id !== id)
         setTodos(todosFiltred)
+        
     }
 
     const handleEditSubmit = (id:number): FormEventHandler<HTMLFormElement> => (e) => {
@@ -63,6 +80,7 @@ export default function Todo () {
 
         setTodos((state) => state.map((todo) => todo.id === id ? { ...todo, name, time, description, priority } : todo))
         setEditingTodoId(null)
+        
     }
 
     return(
