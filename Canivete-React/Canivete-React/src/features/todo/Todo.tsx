@@ -1,28 +1,16 @@
 import { Badge, Box, Button, Card, Dialog, DropdownMenu, Flex, Heading, RadioGroup, Strong, Text, TextField } from "@radix-ui/themes";
 import { DotsVerticalIcon } from '@radix-ui/react-icons'
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { FormEventHandler } from "react"
 import type { Todo } from "./types/todo";
 import type { priority } from "./types/priority";
+import useTodos from "./hooks/useTodo";
 
 export default function Todo () {
 
-    function getLocalStorage () {
-        const raw = localStorage.getItem('todos')
-
-        if (!raw) return []
-
-        const data = JSON.parse(raw) as Todo[]
-        return data
-    }
-
-    const [todos, setTodos] = useState<Todo[]>(() => getLocalStorage())
     const [editingTodoId, setEditingTodoId] = useState<number | null>(null)
     const [isOpen, setIsOpen] = useState(false)
-
-    useEffect(() => {
-        localStorage.setItem('todos', JSON.stringify(todos))
-    }, [todos])
+    const [todos, setTodos] = useTodos()
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault()
