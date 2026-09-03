@@ -1,6 +1,7 @@
 import { Badge, Box, Button, Card, Dialog, DropdownMenu, Flex, Heading, RadioGroup, Strong, Text, TextField } from "@radix-ui/themes";
 import { DotsVerticalIcon } from '@radix-ui/react-icons'
-import { FormEventHandler, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import type { FormEventHandler } from "react"
 
 
 type priority = 'low' | 'medium' |'high'
@@ -26,12 +27,11 @@ export default function Todo () {
 
     const [todos, setTodos] = useState<Tarefa[]>(() => getLocalStorage())
     const [editingTodoId, setEditingTodoId] = useState<number | null>(null)
+    const [isOpen, setIsOpen] = useState(false)
 
     useEffect(() => {
         localStorage.setItem('todos', JSON.stringify(todos))
     }, [todos])
-
-    
 
     const handleSubmit: FormEventHandler<HTMLFormElement> = (e) => {
         e.preventDefault()
@@ -57,7 +57,7 @@ export default function Todo () {
         }
 
         setTodos((state) => [...state, newTodo])
-        
+        setIsOpen(false)
     }
 
     const removeTodo = (id:number) => {
@@ -88,7 +88,7 @@ export default function Todo () {
             <Flex align={'center'} direction={'column'} gap={'4'}>
                 <Heading color="gray" size={'8'}> To-do List</Heading>
                 
-                <Dialog.Root>
+                <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
 
                     <Dialog.Trigger>
                         <Button color="green" variant="surface">Adicionar Tarefa</Button>
