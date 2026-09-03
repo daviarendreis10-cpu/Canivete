@@ -2,17 +2,8 @@ import { Badge, Box, Button, Card, Dialog, DropdownMenu, Flex, Heading, RadioGro
 import { DotsVerticalIcon } from '@radix-ui/react-icons'
 import { useEffect, useState } from "react";
 import type { FormEventHandler } from "react"
-
-
-type priority = 'low' | 'medium' |'high'
-
-interface Tarefa {
-    id: number
-    name: string
-    description: string
-    time: string
-    priority: priority
-}
+import type { Todo } from "./types/todo";
+import type { priority } from "./types/priority";
 
 export default function Todo () {
 
@@ -21,11 +12,11 @@ export default function Todo () {
 
         if (!raw) return []
 
-        const data = JSON.parse(raw) as Tarefa[]
+        const data = JSON.parse(raw) as Todo[]
         return data
     }
 
-    const [todos, setTodos] = useState<Tarefa[]>(() => getLocalStorage())
+    const [todos, setTodos] = useState<Todo[]>(() => getLocalStorage())
     const [editingTodoId, setEditingTodoId] = useState<number | null>(null)
     const [isOpen, setIsOpen] = useState(false)
 
@@ -48,7 +39,7 @@ export default function Todo () {
 
         e.currentTarget.reset()
 
-        const newTodo: Tarefa = {
+        const newTodo: Todo = {
             id: Math.round(Math.random() * 100000),
             name: name,
             time: time,
